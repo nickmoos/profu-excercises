@@ -1,24 +1,33 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
 /**
  * The class checkout system can collect bought items on a receipt, print the current receipt. Furthermore, the system can analyze all sold items based on category.
  *
  * @author Anonymous Intern
  * @version 1.0
  */
-public class CheckoutSystem
-{
+public class CheckoutSystem {
+    // A list of all receipts in the system
     private ArrayList<Receipt> allReceipts;
-
+    // The current receipt being processed
     private Receipt currentReceipt;
+    // A map of categories and their corresponding tax and discount rates
+    private HashMap<String, Category> categories;
 
     /**
-     * Constructor initializing the checkout system
+     * Constructor initializing the checkout system and the categories
      */
     public CheckoutSystem() {
         this.allReceipts = new ArrayList<>();
         this.currentReceipt = new Receipt();
+        this.categories = new HashMap<>();
+        // Initialize the categories with their names and rates
+        this.categories.put("Food", new Category("Food", 5, 10));
+        this.categories.put("Alcohol", new Category("Alcohol", 10, 0));
+        this.categories.put("Non-Food", new Category("Non-Food", 8, 5));
+        this.categories.put("Journals", new Category("Journals", 2, 15));
     }
 
     /**
@@ -30,9 +39,17 @@ public class CheckoutSystem
      * @param price - price of item
      */
     public void addItemToReceipt(String item, String category, double price) {
-        this.currentReceipt.itemList.add(item);
-        this.currentReceipt.categoryList.add(category);
-        this.currentReceipt.priceList.add(price);
+        // Get the category object from the map
+        Category cat = this.categories.get(category);
+        if (cat == null) {
+            // If the category is not found, print an error message
+            System.out.println("Invalid category: " + category);
+            return;
+        }
+        // Create a new item object with the given description, category, and price
+        Item newItem = new Item(item, cat, price);
+        // Add the item to the current receipt
+        this.currentReceipt.itemList.add(newItem);
     }
 
     /**
@@ -54,61 +71,40 @@ public class CheckoutSystem
      * </ul>
      */
     public void printSellingStatistics() {
-        HashSet<String> soldArticles = new HashSet<>();
-        for (Receipt r : allReceipts) {
-            soldArticles.addAll(r.itemList);
-        }
-        System.out.println("Sold Items");
-        for (String s : soldArticles) {
-            System.out.println(s);
-        }
+        // A set of sold items
+        HashSet<String> soldItems = new HashSet<>();
+        // A map of categories and their corresponding number of sold items
+        HashMap<String, Integer> soldItemsPerCategory = new HashMap<>();
+        // A map of categories and their corresponding income
+        HashMap<String, Double> incomePerCategory = new HashMap<>();
 
-        System.out.println("\n\nNumber of sold items per category and income per category");
-
-        int countItemsFood = 0;
-        int countItemsAlcohol = 0;
-        int countItemsNonFood = 0;
-        int countItemsJournals = 0;
-
-        double incomeFood = 0.0;
-        double incomeAlcohol = 0.0;
-        double incomeNonFood = 0.0;
-        double incomeJournals = 0.0;
-
-
-        for (Receipt r : allReceipts) {
-            for (int i = 0; i < r.itemList.size(); i++) {
-                if (r.categoryList.get(i).equals(Receipt.CATEGORY_FOOD)) {
-                    countItemsFood += 1;
-                    incomeFood += r.priceList.get(i);
-                }
-                if (r.categoryList.get(i).equals(Receipt.CATEGORY_ALCOHOL)) {
-                    countItemsNonFood += 1;
-                    incomeAlcohol += r.priceList.get(i);
-                }
-                if (r.categoryList.get(i).equals(Receipt.CATEGORY_NON_FOOD)) {
-                    countItemsNonFood += 1;
-                    incomeNonFood += r.priceList.get(i);
-                }
-                if (r.categoryList.get(i).equals(Receipt.CATEGORY_JOURNALS)) {
-                    countItemsJournals += 1;
-                    incomeJournals += r.priceList.get(i);
-                }
+        // Loop through all the receipts
+        for (Receipt receipt : allReceipts) {
+            // Loop through all the items in the receipt
+            for (Item item : receipt.itemList) {
+                // Add the item description to the set of sold items
+                soldItems.add(item.getDescription());
+                // Get the category name of the item
+                String categoryName = item.getCategory().getName();
+                // Update the number of sold items for the category
+                soldItemsPerCategory.put(categoryName, soldItemsPerCategory.getOrDefault(categoryName, 0) + 1);
+                // Update the income for the category
+                incomePerCategory.put(categoryName, incomePerCategory.getOrDefault(categoryName, 0.0) + item.getPrice());
             }
         }
 
-        System.out.println("Items of category food were sold "
-                + countItemsFood + " times for "
-                + incomeFood + " CHF");
-        System.out.println("Items of category alcohol were sold "
-                + countItemsNonFood + " times for "
-                + incomeAlcohol + " CHF");
-        System.out.println("Items of category non-food were sold "
-                + countItemsNonFood + " times for "
-                + incomeNonFood + " CHF");
-        System.out.println("Items of category journal were sold "
-                + countItemsJournals + " times for "
-                + incomeJournals + " CHF");
-    }
+        // Print the sold items
+        System.out.println("Sold Items");
+        for (String item : soldItems) {
+            System.out.println(item);
+        }
 
+        // Print the number of sold items per category and income per category
+        System.out.println("\n\nNumber of sold items per category and income per category");
+        for (String category : this.categories.keySet()) {
+            System.out.println("Items of category " + category + " were sold "
+                    + soldItemsPerCategory.getOrDefault(category, 0) + " times for "
+                    + incomePerCategory.getOrDefault(category, 0.0) + " CHF");
+        }
+    }
 }
