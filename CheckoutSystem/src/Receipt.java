@@ -49,9 +49,4 @@ public class Receipt {
         System.out.println(row);
         System.out.println("Thank you for shopping with us\n\n\n");
     }
-
-    public static void main(String[] args) {
-        Receipt receipt1 = new Receipt();
-        receipt1.printReceipt();
-    }
 }

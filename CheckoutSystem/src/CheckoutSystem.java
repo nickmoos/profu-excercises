@@ -14,7 +14,7 @@ public class CheckoutSystem {
     // The current receipt being processed
     private Receipt currentReceipt;
     // A map of categories and their corresponding tax and discount rates
-    private HashMap<String, Category> categories;
+    public HashMap<String, Category> categories;
 
     /**
      * Constructor initializing the checkout system and the categories
@@ -23,11 +23,14 @@ public class CheckoutSystem {
         this.allReceipts = new ArrayList<>();
         this.currentReceipt = new Receipt();
         this.categories = new HashMap<>();
+
         // Initialize the categories with their names and rates
         this.categories.put("Food", new Category("Food", 5, 10));
         this.categories.put("Alcohol", new Category("Alcohol", 10, 0));
         this.categories.put("Non-Food", new Category("Non-Food", 8, 5));
         this.categories.put("Journals", new Category("Journals", 2, 15));
+        this.categories.put("Gadgets", new Category("Gadgets", 12, 0));
+
     }
 
     /**
